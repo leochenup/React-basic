@@ -1,52 +1,53 @@
 import React, { Component } from 'react'
-import Add from './components/add/Add'
-import List from './components/list/List'
+import axios from 'axios'
 
-//暴露出去供index.js（入口文件）使用
 export default class App extends Component {
 
-  state = {
-    comments: [
-      { userId: '01', userName: '昌宇玺', content: 'React is so easy' },
-      { userId: '02', userName: '菜菜子', content: 'React is so difficult' },
-      { userId: '03', userName: '郑成功', content: 'React is so wonderful' }
-    ]
-  }
+    state = {
+        isLoading: true,
+        repoName: '',
+        repoUrl: '',
+        errMsg: null
+    }
 
-  addCommentRender = (comment) => {
-    //获取当前的状态
-    let comments = [...this.state.comments]
-    comments.unshift(comment)
-    this.setState({ comments })
-  }
+    keyword = 'r'
 
-  delCommmentRender = (userId) => {
-    //获取当前的状态
-    let comments = [...this.state.comments]
-    let index = comments.findIndex((item) => item.userId === userId)
-    comments.splice(index, 1)
-    this.setState({ comments })
-  }
+    async componentDidMount() {
+        const url = `https://api.github.com/search/repositories?q=${this.keyword}&sort=stars`
+        try {
+            let res = await axios.get(url)
+            let item = res.data.items[0]
+            console.log(item);
+            
+            this.setState({
+                isLoading: false,
+                repoName: item.full_name,
+                repoUrl: item.html_url,
+                errMsg: null
+            })
+        } catch (error) {
+            this.setState({
+                isLoading: false,
+                repoName: '',
+                repoUrl: '',
+                errMsg: error.toString()
+            })
+        }
 
-  render() {
-    let { comments } = this.state
-    return (
-      <div>
-        <header className="site-header jumbotron">
-          <div className="container">
-            <div className="row">
-              <div className="col-xs-12">
-                <h1>请发表对React的评论</h1>
-              </div>
-            </div>
-          </div>
-        </header>
-        <div className="container">
-          <Add addCommentRender={this.addCommentRender} />
-          <List comments={comments} delCommmentRender={this.delCommmentRender} />
-        </div>
-      </div>
-    )
-  }
+
+
+    }
+
+    render() {
+        let { isLoading, repoName, repoUrl, errMsg } = this.state
+        if (isLoading) {
+            return <h4>Loading....</h4>
+        } else if (errMsg) {
+            return <h4>{errMsg}</h4>
+        } else {
+            return (
+                <h4>点赞最多的具有关键字 {this.keyword} 的 github 库是：  <a href={repoUrl}>{repoName}</a></h4>
+            )
+        }
+    }
 }
-
