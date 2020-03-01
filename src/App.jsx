@@ -1,53 +1,32 @@
 import React, { Component } from 'react'
-import axios from 'axios'
+import { Button, message, Calendar } from 'antd';
 
 export default class App extends Component {
-
-    state = {
-        isLoading: true,
-        repoName: '',
-        repoUrl: '',
-        errMsg: null
+    handleClick1 = () => {
+        message.success('点击了。', 10)
+    }
+    handleClick2 = () => {
+        message.error('点击了。')
+    }
+    handleClick3 = () => {
+        message.warning('点击了。')
+    }
+    handleClick4 = () => {
+        message.info('点击了。')
     }
 
-    keyword = 'r'
-
-    async componentDidMount() {
-        const url = `https://api.github.com/search/repositories?q=${this.keyword}&sort=stars`
-        try {
-            let res = await axios.get(url)
-            let item = res.data.items[0]
-            console.log(item);
-            
-            this.setState({
-                isLoading: false,
-                repoName: item.full_name,
-                repoUrl: item.html_url,
-                errMsg: null
-            })
-        } catch (error) {
-            this.setState({
-                isLoading: false,
-                repoName: '',
-                repoUrl: '',
-                errMsg: error.toString()
-            })
-        }
-
-
-
+    onPanelChange(value, mode) {
+        console.log(value.format('YYYY年MM月DD日'), mode);
     }
-
     render() {
-        let { isLoading, repoName, repoUrl, errMsg } = this.state
-        if (isLoading) {
-            return <h4>Loading....</h4>
-        } else if (errMsg) {
-            return <h4>{errMsg}</h4>
-        } else {
-            return (
-                <h4>点赞最多的具有关键字 {this.keyword} 的 github 库是：  <a href={repoUrl}>{repoName}</a></h4>
-            )
-        }
+        return (
+            <div>
+                <Button type="primary" onClick={this.handleClick1}>Primary</Button>
+                <Button onClick={this.handleClick2}>Default</Button>
+                <Button type="dashed" onClick={this.handleClick3}>Dashed</Button>
+                <Button type="link" onClick={this.handleClick4}>Link</Button>
+                <Calendar onPanelChange={this.onPanelChange} />
+            </div>
+        )
     }
 }
